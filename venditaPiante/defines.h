@@ -10,8 +10,8 @@ struct configuration {
 	unsigned int port;
 	char* database;
 
-	char username[21];
-	char password[21];
+	char username[12];
+	char password[12];
 };
 
 extern struct configuration conf;
@@ -34,13 +34,7 @@ extern void view_private_customers(MYSQL* conn);
 extern void view_shop_customers(MYSQL* conn);
 extern void add_private_customer(MYSQL* conn);
 extern void add_shop_customer(MYSQL* conn);
-extern void view_private_customers_orders(MYSQL* conn);
-extern void view_shop_customers_orders(MYSQL* conn);
-extern void add_referent(MYSQL* conn);
-extern void add_private_order(MYSQL* conn);
-extern void add_shop_order(MYSQL* conn);
 extern void add_pack(MYSQL* conn);
-extern void add_ordered_plant(MYSQL* conn);
 extern void add_shopOrder(MYSQL* conn);
 extern void add_plant_pack(MYSQL* conn);
 extern void add_price(MYSQL* conn);

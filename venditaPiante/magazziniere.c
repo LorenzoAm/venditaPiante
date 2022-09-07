@@ -8,16 +8,28 @@ void run_as_warehouse_operator(MYSQL* conn)
 
 	int op;
 
+	printf("\n\n- Hai effettuato l'accesso come magazziniere! -\n");
+
+	if (!parse_config("magazziniere.json", &conf)) {
+		fprintf(stderr, "Unable to load warehouseman configuration\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if (mysql_change_user(conn, conf.db_username, conf.db_password, conf.database)) {
+		fprintf(stderr, "mysql_change_user() failed\n");
+		exit(EXIT_FAILURE);
+	}
+
 	do
 	{
-		printf("\n\n*** Choose an operation... ***\n\n");
-		printf("1) View all suppliers\n");
-		printf("2) View all supplies\n");
-		printf("3) View all plants\n");
-		printf("4) Add new supplier\n");
-		printf("5) Add new treated plant\n");
-		printf("6) Add new supply\n");
-		printf("7) Quit\n\n");
+		printf("\n\n*** Scegli un'operazione... ***\n\n");
+		printf("1) Visualizza fornitori\n");
+		printf("2) Visualizza forniture\n");
+		printf("3) Visualizza piante\n");
+		printf("4) Inserisci fornitore\n");
+		printf("5) Inserisci pianta trattata\n");
+		printf("6) Inserisci fornitura\n");
+		printf("7) Esci\n\n");
 
 
 		scanf("%d", &op);
@@ -62,8 +74,6 @@ static void add_supply(MYSQL* conn)
 	MYSQL_BIND param[4];
 	struct MYSQL_TIME data;
 
-	// Input for the registration routine
-
 	char fornitore[45];
 	char pianta[45];
 	int qta = 0;
@@ -71,25 +81,30 @@ static void add_supply(MYSQL* conn)
 	char meseStr[3];
 	char annoStr[5];
 
-	// Get the required information
+	
+	getchar();
 
-	printf("\nSupplier code: ");
-	scanf("%s", fornitore);
+	printf("\nCodice fornitore: ");
+	fflush(stdout);
+	fgets(fornitore, 45, stdin);
+	fornitore[strlen(fornitore) - 1] = '\0';
 
-	printf("\nPlant code: ");
-	scanf("%s", pianta);
+	printf("\nCodice pianta: ");
+	fflush(stdout);
+	fgets(pianta, 45, stdin);
+	pianta[strlen(pianta) - 1] = '\0';
 
-	printf("\nPlant quantity: ");
-	scanf("%d", qta);
+	printf("\nQuantita' pianta: ");
+	scanf("%d", &qta);
 
-	printf("\nSupply day [1-31]: ");
+	printf("\nGiorno fornitura [1-31]: ");
 	scanf("%s", giornoStr);
 
 
-	printf("\nSupply month [1-12]:");
+	printf("\nMese fornitura [1-12]: ");
 	scanf("%s", meseStr);
 
-	printf("\nSupply year: ");
+	printf("\nAnno fornitura: ");
 	scanf("%s", annoStr);
 
 	int giorno = atoi(giornoStr);
@@ -137,7 +152,7 @@ static void add_supply(MYSQL* conn)
 		print_stmt_error(prepared_stmt, "\n An error occurred while adding the supply.");
 	}
 	else {
-		printf("\n Supply correctly added...\n");
+		printf("\n Fornitura inserita correttamente...\n");
 	}
 
 	mysql_stmt_close(prepared_stmt);
@@ -149,21 +164,27 @@ static void add_supplier(MYSQL* conn)
 	MYSQL_STMT* prepared_stmt;
 	MYSQL_BIND param[3];
 
-	// Input for the registration routine
-	char cf[45];
+	char cf[20];
 	char nome[45];
 	char codiceFornitore[45];
 
-	// Get the required information
+	
+	getchar();
 
-	printf("\nSupplier code: ");
-	scanf("%s", codiceFornitore);
+	printf("\nCodice fornitore: ");
+	fflush(stdout);
+	fgets(codiceFornitore, 45, stdin);
+	codiceFornitore[strlen(codiceFornitore) - 1] = '\0';
 
-	printf("\nSupplier cf: ");
-	scanf("%s", cf);
+	printf("\nCF fornitore: ");
+	fflush(stdout);
+	fgets(cf, 20, stdin);
+	cf[strlen(cf) - 1] = '\0';
 
-	printf("\nSupplier name: ");
-	scanf("%s", nome);
+	printf("\nNome fornitore: ");
+	fflush(stdout);
+	fgets(nome, 45, stdin);
+	nome[strlen(nome) - 1] = '\0';
 
 
 
@@ -197,7 +218,7 @@ static void add_supplier(MYSQL* conn)
 		print_stmt_error(prepared_stmt, "\n An error occurred while adding the supplier.");
 	}
 	else {
-		printf("\n Supplier correctly added...\n");
+		printf("\n Fornitore inserito correttamente...\n");
 	}
 
 	mysql_stmt_close(prepared_stmt);
@@ -208,7 +229,7 @@ static void view_suppliers(MYSQL* conn)
 {
 	MYSQL_STMT* prepared_stmt;
 
-	printf("\n Suppliers list : \n");
+	printf("\n Lista fornitori : \n");
 
 
 	// Prepare stored procedure call
@@ -234,7 +255,7 @@ static void view_supplies(MYSQL* conn)
 {
 	MYSQL_STMT* prepared_stmt;
 
-	printf("\n Supplies list : \n");
+	printf("\n Lista forniture : \n");
 
 
 	// Prepare stored procedure call
@@ -259,7 +280,7 @@ static void view_plants(MYSQL* conn)
 {
 	MYSQL_STMT* prepared_stmt;
 
-	printf("\n Plants list : \n");
+	printf("\n Lista piante : \n");
 
 
 	// Prepare stored procedure call
@@ -285,17 +306,21 @@ static void add_treated_plant(MYSQL* conn)
 	MYSQL_STMT* prepared_stmt;
 	MYSQL_BIND param[2];
 
-	// Input for the registration routine
+	
 	char pianta[45];
 	char codiceFornitore[45];
 
-	// Get the required information
+	getchar();
 
-	printf("\nSupplier code: ");
-	scanf("%s", codiceFornitore);
+	printf("\nCodice fornitore: ");
+	fflush(stdout);
+	fgets(codiceFornitore, 45, stdin);
+	codiceFornitore[strlen(codiceFornitore) - 1] = '\0';
 
-	printf("\nPlant code: ");
-	scanf("%s", pianta);
+	printf("\nCodice pianta: ");
+	fflush(stdout);
+	fgets(pianta, 45, stdin);
+	pianta[strlen(pianta) - 1] = '\0';
 
 
 
@@ -326,7 +351,7 @@ static void add_treated_plant(MYSQL* conn)
 		print_stmt_error(prepared_stmt, "\n An error occurred while adding the treated plant.");
 	}
 	else {
-		printf("\n treated plant correctly added...\n");
+		printf("\n Pianta trattata inserita correttamente...\n");
 	}
 
 	mysql_stmt_close(prepared_stmt);

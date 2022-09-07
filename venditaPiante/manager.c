@@ -8,28 +8,40 @@ void run_as_manager(MYSQL* conn)
 
 	int op;
 
+	printf("\n\n- Hai effettuato l'accesso come manager! -\n");
+
+	if (!parse_config("manager.json", &conf)) {
+		fprintf(stderr, "Unable to load manager configuration\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if (mysql_change_user(conn, conf.db_username, conf.db_password, conf.database)) {
+		fprintf(stderr, "mysql_change_user() failed\n");
+		exit(EXIT_FAILURE);
+	}
+
 	do
 	{
-		printf("\n\n*** Choose an operation... ***\n\n");
-		printf("1) Delete order\n");
-		printf("2) Complete orders\n");
-		printf("3) View all plants\n");
-		printf("4) View all private customers\n");
-		printf("5) View all shop customers\n");
-		printf("6) Add new private order\n");
-		printf("7) Add new shop order\n");
-		printf("8) Add new package\n");
-		printf("9) Add new plant\n");
-		printf("10) Add new private customer\n");
-		printf("11) Add new shop customer\n");
-		printf("12) Insert plant in a package\n");
-		printf("13) Add new plant price\n");
-		printf("14) View private customers' orders\n");
-		printf("15) View shop customers' orders\n");
-		printf("16) View order's number of packages\n");
-		printf("17) View order's pack information\n");
-		printf("18) Insert plant reference to an order\n");
-		printf("19) Quit\n\n");
+		printf("\n\n*** Scegli un'operazione... ***\n\n");
+		printf("1) Cancella ordine\n");
+		printf("2) Completa ordini\n");
+		printf("3) Visualizza piante\n");
+		printf("4) Visualizza privati\n");
+		printf("5) Visualizza rivendite\n");
+		printf("6) Inserisci ordine privato\n");
+		printf("7) Inserisci ordine rivendita\n");
+		printf("8) Inserisci pacco\n");
+		printf("9) Inserisci pianta\n");
+		printf("10) Inserisci privato\n");
+		printf("11) Inserisci rivendita\n");
+		printf("12) Inserisci pianta nel pacco\n");
+		printf("13) Inserisci nuovo prezzo pianta\n");
+		printf("14) Visualizza ordini privati\n");
+		printf("15) Visualizza ordini rivendite\n");
+		printf("16) Visualizza numero pacchi ordine\n");
+		printf("17) Visualizza info pacchi ordine\n");
+		printf("18) Inserisci riferimento pianta per un ordine\n");
+		printf("19) Esci\n\n");
 
 
 		scanf("%d", &op);
@@ -107,7 +119,7 @@ static void view_private_customers(MYSQL* conn)
 {
 	MYSQL_STMT* prepared_stmt;
 
-	printf("\n Private customers list : \n");
+	printf("\n Lista privati : \n");
 
 
 	// Prepare stored procedure call
@@ -131,7 +143,7 @@ static void view_shop_customers(MYSQL* conn)
 {
 	MYSQL_STMT* prepared_stmt;
 
-	printf("\n Shop customers list : \n");
+	printf("\n Lista rivendite : \n");
 
 
 	// Prepare stored procedure call
@@ -156,37 +168,66 @@ static void add_private_customer(MYSQL* conn)
 	MYSQL_STMT* prepared_stmt;
 	MYSQL_BIND param[9];
 
-	// Input for the registration routine
 	char nome[45];
 	char cognome[45];
-	char cf[45];
+	char cf[20];
 	char via[45];
-	char civico[45];
+	char civico[10];
 	char citt‡[45];
 	char viaFatt[45];
-	char civicoFatt[45];
+	char civicoFatt[10];
 	char citt‡Fatt[45];
 
-	// Get the required information
+	
 
-	printf("\nPrivate customer cf: ");
-	scanf("%s", cf);
-	printf("\nPrivate customer name: ");
-	scanf("%s", nome);
-	printf("\nPrivate customer surname: ");
-	scanf("%s", cognome);
-	printf("\nPrivate customer street: ");
-	scanf("%s", via);
-	printf("\nPrivate customer street number: ");
-	scanf("%s", civico);
-	printf("\nPrivate customer city: ");
-	scanf("%s", citt‡);
-	printf("\nPrivate customer billing street: ");
-	scanf("%s", viaFatt);
-	printf("\nPrivate customer billing street number: ");
-	scanf("%s", civicoFatt);
-	printf("\nPrivate customer billing city: ");
-	scanf("%s", citt‡Fatt);
+	getchar();
+
+	printf("\nCF: ");
+	fflush(stdout);
+	fgets(cf, 20, stdin);
+	cf[strlen(cf) - 1] = '\0';
+
+	printf("\nNome: ");
+	fflush(stdout);
+	fgets(nome, 45, stdin);
+	nome[strlen(nome) - 1] = '\0';
+
+	printf("\nCognome: ");
+	fflush(stdout);
+	fgets(cognome, 45, stdin);
+	cognome[strlen(cognome) - 1] = '\0';
+
+	printf("\nVia: ");
+	fflush(stdout);
+	fgets(via, 45, stdin);
+	via[strlen(via) - 1] = '\0';
+
+	printf("\nCivico: ");
+	fflush(stdout);
+	fgets(civico, 10, stdin);
+	civico[strlen(civico) - 1] = '\0';
+
+	printf("\nCitta': ");
+	fflush(stdout);
+	fgets(citt‡, 45, stdin);
+	citt‡[strlen(citt‡) - 1] = '\0';
+
+	printf("\nVia fatturazione: ");
+	fflush(stdout);
+	fgets(viaFatt, 45, stdin);
+	viaFatt[strlen(viaFatt) - 1] = '\0';
+
+	printf("\nCivico fatturazione: ");
+	fflush(stdout);
+	fgets(civicoFatt, 10, stdin);
+	civicoFatt[strlen(civicoFatt) - 1] = '\0';
+
+	printf("\nCitta' fatturazione: ");
+	fflush(stdout);
+	fgets(citt‡Fatt, 45, stdin);
+	citt‡Fatt[strlen(citt‡Fatt) - 1] = '\0';
+
+	
 
 
 	// Prepare stored procedure call
@@ -245,7 +286,7 @@ static void add_private_customer(MYSQL* conn)
 		print_stmt_error(prepared_stmt, "\n An error occurred while adding the private customer.");
 	}
 	else {
-		printf("\n Private customer correctly added...\n");
+		printf("\n Privato inserito correttamente...\n");
 	}
 
 	mysql_stmt_close(prepared_stmt);
@@ -256,40 +297,69 @@ static void add_shop_customer(MYSQL* conn)
 	MYSQL_STMT* prepared_stmt;
 	MYSQL_BIND param[10];
 
-	// Input for the registration routine
 	char nome[45];
-	char iva[45];
+	char iva[15];
 	char via[45];
-	char civico[45];
+	char civico[10];
 	char citt‡[45];
 	char viaFatt[45];
-	char civicoFatt[45];
+	char civicoFatt[10];
 	char citt‡Fatt[45];
 	char nomeRef[45];
 	char cognomeRef[45];
 
-	// Get the required information
+	
+	getchar();
 
-	printf("\nShop customer partitaIVA: ");
-	scanf("%s", iva);
-	printf("\nShop customer name: ");
-	scanf("%s", nome);
-	printf("\nShop customer street: ");
-	scanf("%s", via);
-	printf("\nShop customer street number: ");
-	scanf("%s", civico);
-	printf("\nShop customer city: ");
-	scanf("%s", citt‡);
-	printf("\nShop customer billing street: ");
-	scanf("%s", viaFatt);
-	printf("\nShop customer billing street number: ");
-	scanf("%s", civicoFatt);
-	printf("\nShop customer billing city: ");
-	scanf("%s", citt‡Fatt);
-	printf("\nShop customer referent name: ");
-	scanf("%s", nomeRef);
-	printf("\nShop customer referent surname: ");
-	scanf("%s", cognomeRef);
+	printf("\nPartitaIVA: ");
+	fflush(stdout);
+	fgets(iva, 15, stdin);
+	iva[strlen(iva) - 1] = '\0';
+
+	printf("\nNome: ");
+	fflush(stdout);
+	fgets(nome, 45, stdin);
+	nome[strlen(nome) - 1] = '\0';
+
+	printf("\nVia: ");
+	fflush(stdout);
+	fgets(via, 45, stdin);
+	via[strlen(via) - 1] = '\0';
+
+	printf("\nCivico: ");
+	fflush(stdout);
+	fgets(civico, 10, stdin);
+	civico[strlen(civico) - 1] = '\0';
+
+	printf("\nCitta': ");
+	fflush(stdout);
+	fgets(citt‡, 45, stdin);
+	citt‡[strlen(citt‡) - 1] = '\0';
+
+	printf("\nVia fatturazione: ");
+	fflush(stdout);
+	fgets(viaFatt, 45, stdin);
+	viaFatt[strlen(viaFatt) - 1] = '\0';
+
+	printf("\nCivico fatturazione: ");
+	fflush(stdout);
+	fgets(civicoFatt, 10, stdin);
+	civicoFatt[strlen(civicoFatt) - 1] = '\0';
+
+	printf("\nCitta' fatturazione: ");
+	fflush(stdout);
+	fgets(citt‡Fatt, 45, stdin);
+	citt‡Fatt[strlen(citt‡Fatt) - 1] = '\0';
+
+	printf("\nNome referente: ");
+	fflush(stdout);
+	fgets(nomeRef, 45, stdin);
+	nomeRef[strlen(nomeRef) - 1] = '\0';
+
+	printf("\nCognome referente: ");
+	fflush(stdout);
+	fgets(cognomeRef, 45, stdin);
+	cognomeRef[strlen(cognomeRef) - 1] = '\0';
 
 
 
@@ -354,7 +424,7 @@ static void add_shop_customer(MYSQL* conn)
 		print_stmt_error(prepared_stmt, "\n An error occurred while adding the shop customer.");
 	}
 	else {
-		printf("\nshop customer correctly added...\n");
+		printf("\nRivendita inserita correttamente...\n");
 	}
 
 	mysql_stmt_close(prepared_stmt);
@@ -365,7 +435,7 @@ static void view_private_orders(MYSQL* conn)
 	MYSQL_STMT* prepared_stmt;
 
 
-	printf("\n Private customers orders list: \n");
+	printf("\n Lista ordini privati: \n");
 
 
 	// Prepare stored procedure call
@@ -389,7 +459,7 @@ static void view_shop_orders(MYSQL* conn)
 {
 	MYSQL_STMT* prepared_stmt;
 
-	printf("\n Shop customers orders list: \n");
+	printf("\n Lista ordini rivendite: \n");
 
 
 	// Prepare stored procedure call
@@ -416,7 +486,7 @@ static void delete_order(MYSQL* conn)
 
 	int codice;
 
-	printf("\nOrder code: ");
+	printf("\nCodice ordine: ");
 	scanf("%d", &codice);
 
 
@@ -442,7 +512,7 @@ static void delete_order(MYSQL* conn)
 		print_stmt_error(prepared_stmt, "\n An error occurred while deleting the order.");
 	}
 	else {
-		printf("\norder correctly deleted...\n");
+		printf("\nOrdine cancellato correttamente...\n");
 	}
 
 	mysql_stmt_close(prepared_stmt);
@@ -452,7 +522,7 @@ static void complete_orders(MYSQL* conn)
 {
 	MYSQL_STMT* prepared_stmt;
 
-	printf("\n Incompleted orders list: \n");
+	printf("\n Ordini da completare: \n");
 
 
 	// Prepare stored procedure call
@@ -476,7 +546,7 @@ static void view_plants(MYSQL* conn)
 {
 	MYSQL_STMT* prepared_stmt;
 
-	printf("\n Plants list: \n");
+	printf("\n Lista piante: \n");
 
 
 	// Prepare stored procedure call
@@ -503,8 +573,12 @@ static void view_number_packages(MYSQL* conn)
 
 	int codice;
 
-	printf("\n Order's packages list: \n");
+	
 
+	printf("\n Codice ordine: ");
+	scanf("%d",&codice);
+
+	printf("\n Lista pacchi ordine: \n");
 
 	// Prepare stored procedure call
 	if (!setup_prepared_stmt(&prepared_stmt, "call NumeroPacchiOrdine(?)", conn)) {
@@ -540,13 +614,16 @@ static void view_packages_info(MYSQL* conn)
 	MYSQL_STMT* prepared_stmt;
 	MYSQL_BIND param[1];
 
-	int codice;
+	int codice = 0;
 
-	printf("\n Packages info list: \n");
+	printf("\nCodice ordine: ");
+	scanf("%d",&codice);
+
+	printf("\n Info pacchi ordine: \n");
 
 
 	// Prepare stored procedure call
-	if (!setup_prepared_stmt(&prepared_stmt, "call Quantit‡PiantePacchi(?)", conn)) {
+	if (!setup_prepared_stmt(&prepared_stmt, "call QuantitaPiantePacchi(?)", conn)) {
 		finish_with_stmt_error(conn, prepared_stmt, "\n Unable to initialize order's packages list statement\n", false);
 	}
 	// Prepare parameters
@@ -579,7 +656,6 @@ static void add_plant(MYSQL* conn)
 	MYSQL_BIND param[5];
 	struct MYSQL_TIME data;
 
-	// Input for the registration routine
 	char codice[45];
 	char nomeComune[45];
 	char nomeLatino[45];
@@ -588,22 +664,34 @@ static void add_plant(MYSQL* conn)
 	char annoStr[45];
 	float prezzo = 0.0;
 
-	// Get the required information
+	
+	getchar();
 
-	printf("\nPlant code: ");
-	scanf("%s", codice);
-	printf("\nPlant common name: ");
-	scanf("%s", nomeComune);
-	printf("\nPlant latin name: ");
-	scanf("%s", nomeLatino);
-	printf("\nPrice value: ");
-	scanf("%f", prezzo);
+	printf("\nCodice pianta: ");
+	fflush(stdout);
+	fgets(codice, 45, stdin);
+	codice[strlen(codice) - 1] = '\0';
 
-	printf("\nPrice day [1-31]: ");
+	printf("\nNome comune: ");
+	fflush(stdout);
+	fgets(nomeComune, 45, stdin);
+	nomeComune[strlen(nomeComune) - 1] = '\0';
+
+	printf("\nNome latino: ");
+	fflush(stdout);
+	fgets(nomeLatino, 45, stdin);
+	nomeLatino[strlen(nomeLatino) - 1] = '\0';
+
+	printf("\nPrezzo (Euro): ");
+	scanf("%f", &prezzo);
+
+	printf("\nGiorno validita' [1-31]: ");
 	scanf("%s", giornoStr);
-	printf("\nPrice month [1-12]:");
+
+	printf("\nMese validita' [1-12]:");
 	scanf("%s", meseStr);
-	printf("\nPrice year: ");
+
+	printf("\nAnno validita': ");
 	scanf("%s", annoStr);
 
 	int giorno = atoi(giornoStr);
@@ -656,7 +744,7 @@ static void add_plant(MYSQL* conn)
 		print_stmt_error(prepared_stmt, "\n An error occurred while adding the plant.");
 	}
 	else {
-		printf("\n Plant correctly added...\n");
+		printf("\n Pianta inserita correttamente...\n");
 	}
 
 	mysql_stmt_close(prepared_stmt);
@@ -667,13 +755,13 @@ static void add_pack(MYSQL* conn)
 	MYSQL_STMT* prepared_stmt;
 	MYSQL_BIND param[1];
 
-	// Input for the registration routine
 	int ordine = 0;
 
-	// Get the required information
+	
+	getchar();
 
-	printf("\nOrder code: ");
-	scanf("%d", ordine);
+	printf("\nCodice ordine: ");
+	scanf("%d", &ordine);
 
 
 
@@ -699,7 +787,7 @@ static void add_pack(MYSQL* conn)
 		print_stmt_error(prepared_stmt, "\n An error occurred while adding the package");
 	}
 	else {
-		printf("\n package correctly added...\n");
+		printf("\n Pacco inserito correttamente...\n");
 	}
 
 	mysql_stmt_close(prepared_stmt);
@@ -710,18 +798,21 @@ static void add_plant_pack(MYSQL* conn)
 	MYSQL_STMT* prepared_stmt;
 	MYSQL_BIND param[3];
 
-	// Input for the registration routine
 	char pianta[45];
 	int pacco = 0;
 	int qta = 0;
 
-	// Get the required information
+	getchar();
 
-	printf("\nPlant code: ");
-	scanf("%s", pianta);
-	printf("\nPackage code: ");
+	printf("\nCodice pianta: ");
+	fflush(stdout);
+	fgets(pianta, 45, stdin);
+	pianta[strlen(pianta) - 1] = '\0';
+
+	printf("\nCodice pacco: ");
 	scanf("%d", &pacco);
-	printf("\nPlant quantity: ");
+
+	printf("\nQuantita': ");
 	scanf("%d", &qta);
 
 
@@ -757,7 +848,7 @@ static void add_plant_pack(MYSQL* conn)
 		print_stmt_error(prepared_stmt, "\n An error occurred while adding the plant in the package");
 	}
 	else {
-		printf("\n plant correctly added in the package...\n");
+		printf("\n Pianta inserita correttamente nel pacco...\n");
 	}
 
 	mysql_stmt_close(prepared_stmt);
@@ -770,22 +861,30 @@ static void add_price(MYSQL* conn)
 	MYSQL_BIND param[3];
 	struct MYSQL_TIME data;
 
-	// Input for the registration routine
 	char pianta[45];
 	char giornoStr[45];
 	char meseStr[45];
 	char annoStr[45];
 	float prezzo = 0.0;
 
-	// Get the required information
+	
+	getchar();
 
-	printf("\nPlant code: ");
-	scanf("%s", pianta);
-	printf("\nPrice day [1-31]: ");
+	printf("\nCodice pianta: ");
+	fflush(stdout);
+	fgets(pianta, 45, stdin);
+	pianta[strlen(pianta) - 1] = '\0';
+
+	printf("\nNuovo prezzo (Euro): ");
+	scanf("%f", &prezzo);
+
+	printf("\nGiorno validita' [1-31]: ");
 	scanf("%s", giornoStr);
-	printf("\nPrice month [1-12]:");
+
+	printf("\nMese validita' [1-12]:");
 	scanf("%s", meseStr);
-	printf("\nPrice year: ");
+
+	printf("\nAnno validita': ");
 	scanf("%s", annoStr);
 
 	int giorno = atoi(giornoStr);
@@ -827,7 +926,7 @@ static void add_price(MYSQL* conn)
 		print_stmt_error(prepared_stmt, "\n An error occurred while adding the price");
 	}
 	else {
-		printf("\n price correctly added in the package...\n");
+		printf("\n Nuovo prezzo inserito correttamente...\n");
 	}
 
 	mysql_stmt_close(prepared_stmt);
@@ -839,35 +938,50 @@ static void add_privateOrder(MYSQL* conn)
 	MYSQL_BIND param[6];
 	struct MYSQL_TIME data;
 
-	// Input for the registration routine
-	char cf[45];
+	char cf[20];
 	char contatto[45];
 	char via[45];
-	char civico[45];
+	char civico[10];
 	char citt‡[45];
 	char giornoStr[45];
 	char meseStr[45];
 	char annoStr[45];
 
-	// Get the required information
+	getchar();
 
-	printf("\nPrivate customer cf: ");
-	scanf("%s", cf);
-	printf("\nPrivate customer contact: ");
-	scanf("%s", contatto);
-	printf("\nStreet name: ");
-	scanf("%s", via);
-	printf("\nStreet number: ");
-	scanf("%s", civico);
-	printf("\nCity: ");
-	scanf("%s", citt‡);
+	printf("\nCF: ");
+	fflush(stdout);
+	fgets(cf, 20, stdin);
+	cf[strlen(cf) - 1] = '\0';
+
+	printf("\nContatto: ");
+	fflush(stdout);
+	fgets(contatto, 45, stdin);
+	contatto[strlen(contatto) - 1] = '\0';
+
+	printf("\nVia: ");
+	fflush(stdout);
+	fgets(via, 45, stdin);
+	via[strlen(via) - 1] = '\0';
+
+	printf("\nCivico: ");
+	fflush(stdout);
+	fgets(civico, 10, stdin);
+	civico[strlen(civico) - 1] = '\0';
+
+	printf("\nCitta': ");
+	fflush(stdout);
+	fgets(citt‡, 45, stdin);
+	citt‡[strlen(citt‡) - 1] = '\0';
 
 
-	printf("\nOrder day [1-31]: ");
+	printf("\nGiorno ordinazione [1-31]: ");
 	scanf("%s", giornoStr);
-	printf("\nOrder month [1-12]:");
+
+	printf("\nMese ordinazione [1-12]:");
 	scanf("%s", meseStr);
-	printf("\nOrder year: ");
+
+	printf("\nAnno ordinazione: ");
 	scanf("%s", annoStr);
 
 	int giorno = atoi(giornoStr);
@@ -923,7 +1037,7 @@ static void add_privateOrder(MYSQL* conn)
 		print_stmt_error(prepared_stmt, "\n An error occurred while adding the order.");
 	}
 	else {
-		printf("\n Private order correctly added...\n");
+		printf("\n Ordine inserito correttamente...\n");
 	}
 
 	mysql_stmt_close(prepared_stmt);
@@ -935,35 +1049,51 @@ static void add_shopOrder(MYSQL* conn)
 	MYSQL_BIND param[6];
 	struct MYSQL_TIME data;
 
-	// Input for the registration routine
-	char iva[45];
+	char iva[15];
 	char contatto[45];
 	char via[45];
-	char civico[45];
+	char civico[10];
 	char citt‡[45];
 	char giornoStr[45];
 	char meseStr[45];
 	char annoStr[45];
 
-	// Get the required information
+	
+	getchar();
 
-	printf("\nPrivate customer partitaIVA: ");
-	scanf("%s", iva);
-	printf("\nPrivate customer contact: ");
-	scanf("%s", contatto);
-	printf("\nStreet name: ");
-	scanf("%s", via);
-	printf("\nStreet number: ");
-	scanf("%s", civico);
-	printf("\nCity: ");
-	scanf("%s", citt‡);
+	printf("\nPartitaIVA: ");
+	fflush(stdout);
+	fgets(iva, 15, stdin);
+	iva[strlen(iva) - 1] = '\0';
+
+	printf("\nContatto: ");
+	fflush(stdout);
+	fgets(contatto, 45, stdin);
+	contatto[strlen(contatto) - 1] = '\0';
+
+	printf("\nVia: ");
+	fflush(stdout);
+	fgets(via, 45, stdin);
+	via[strlen(via) - 1] = '\0';
+
+	printf("\nCivico: ");
+	fflush(stdout);
+	fgets(civico, 10, stdin);
+	civico[strlen(civico) - 1] = '\0';
+
+	printf("\nCitta': ");
+	fflush(stdout);
+	fgets(citt‡, 45, stdin);
+	citt‡[strlen(citt‡) - 1] = '\0';
 
 
-	printf("\nOrder day [1-31]: ");
+	printf("\nGiorno ordinazione [1-31]: ");
 	scanf("%s", giornoStr);
-	printf("\nOrder month [1-12]:");
+
+	printf("\nMese ordinazione [1-12]:");
 	scanf("%s", meseStr);
-	printf("\nOrder year: ");
+
+	printf("\nAnno ordinazione: ");
 	scanf("%s", annoStr);
 
 	int giorno = atoi(giornoStr);
@@ -1019,7 +1149,7 @@ static void add_shopOrder(MYSQL* conn)
 		print_stmt_error(prepared_stmt, "\n An error occurred while adding the order.");
 	}
 	else {
-		printf("\n Shop order correctly added...\n");
+		printf("\n Ordine inserito correttamente...\n");
 	}
 
 	mysql_stmt_close(prepared_stmt);
@@ -1030,18 +1160,22 @@ static void add_orderedPlant(MYSQL* conn)
 	MYSQL_STMT* prepared_stmt;
 	MYSQL_BIND param[3];
 
-	// Input for the registration routine
 	char pianta[45];
 	int ordine = 0;
 	int qta = 0;
 
-	// Get the required information
+	
+	getchar();
 
-	printf("\nPlant code: ");
-	scanf("%s", pianta);
-	printf("\nOrder code: ");
+	printf("\nCodice pianta: ");
+	fflush(stdout);
+	fgets(pianta, 45, stdin);
+	pianta[strlen(pianta) - 1] = '\0';
+
+	printf("\nCodice ordine: ");
 	scanf("%d", &ordine);
-	printf("\nPlant quantity: ");
+
+	printf("\nQuantita': ");
 	scanf("%d", &qta);
 
 
@@ -1077,7 +1211,7 @@ static void add_orderedPlant(MYSQL* conn)
 		print_stmt_error(prepared_stmt, "\n An error occurred while adding the ordered plant");
 	}
 	else {
-		printf("\n plant correctly added to the order...\n");
+		printf("\n Riferimento alla pianta aggiunto correttamente...\n");
 	}
 
 	mysql_stmt_close(prepared_stmt);

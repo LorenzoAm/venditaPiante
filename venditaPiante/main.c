@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mysql.h>
-
+#include <conio.h>
 #include "defines.h"
+#define PASSWORD_LENGTH 12
+
+
 
 
 typedef enum {
@@ -83,14 +86,14 @@ err2:
 
 int main(void) {
 	role_t role;
+	int i = 0;
+	int ch;
 
-	if (!parse_config("manager.json", &conf)) {
+	if (!parse_config("login.json", &conf)) {
 		fprintf(stderr, "Unable to load login configuration\n");
 		exit(EXIT_FAILURE);
 	}
 
-	//DEBUG
-	printf("host: %s, username: %s, password: %s, database: %s, port: %u\n", conf.host, conf.db_username, conf.db_password, conf.database, conf.port);
 
 	conn = mysql_init(NULL);
 	if (conn == NULL) {
@@ -104,20 +107,40 @@ int main(void) {
 		exit(EXIT_FAILURE);
 	}
 
-	//MYSQL mysql;
-	/*
-	mysql_init(&mysql);
-	mysql_options(&mysql, MYSQL_READ_DEFAULT_GROUP, "ProjectBasiLollo");
-	if (!mysql_real_connect(&mysql, conf.host, conf.db_username, conf.db_password, conf.database, conf.port, NULL, 0))
-	{
-		fprintf(stderr, "Failed to connect to database: Error: %s\n",
-			mysql_error(&mysql));
-	}*/
 
 	printf("Username: ");
-	scanf_s("%s", conf.username);
+	scanf("%s", conf.username);
 	printf("Password: ");
-	scanf_s("%s", conf.password);
+
+
+	while (i < PASSWORD_LENGTH) {
+		ch = _getch();
+		if (ch == ' ' || ch == 27) {
+			continue;
+		}
+		else if (ch == '\b') {
+			if (i > 0) {
+				printf("\b \b");
+				--i;
+			}
+			else {
+				continue;
+			}
+		}
+		else if (ch == '\r' || ch == '\t') {
+			break;
+		}
+		else if (ch == 0 || ch == 224) {
+			ch = _getch();
+			continue;
+		}
+		else {
+			conf.password[i++] = ch;
+			printf("*");
+		}
+	}
+	conf.password[i] = '\0';
+	
 
 	role = attempt_login(conn, conf.username, conf.password);
 
@@ -131,7 +154,7 @@ int main(void) {
 		break;
 
 	case FAILED_LOGIN:
-		fprintf(stderr, "Invalid credentials\n");
+		fprintf(stderr, "\nCredenziali non valide!\n");
 		exit(EXIT_FAILURE);
 		break;
 
@@ -140,7 +163,7 @@ int main(void) {
 		abort();
 	}
 
-	printf("Bye!\n");
+	printf("\n- Arrivederci! -\n");
 
 	mysql_close(conn);
 	return 0;
